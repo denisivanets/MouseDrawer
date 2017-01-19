@@ -1,24 +1,28 @@
-import java.awt.*;
+import java.awt.Color;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class Cluster {
     private Color color = new Color(
             (int) (Math.random() * 255),
             (int) (Math.random() * 255),
-            ( int) (Math.random() * 255)
+            (int) (Math.random() * 255)
     );
     private int X;
     private int Y;
-    private int width;
-    private int height;
-    private Point center;
+    private Set<Point> pointList;
 
-    public Cluster(int X, int Y, int width, int height){
+    public Cluster(int X, int Y){
         this.X = X;
         this.Y = Y;
-        this.width = width;
-        this.height = height;
-//        center = new Point(((this.X + this.width)/2), (( this.Y + this.height)/2));
-        center = new Point(this.width / 2, this.height /2 + this.Y);
+        pointList = new HashSet<>();
+    }
+
+    public void addPoint(Point point){
+        pointList.add(point);
+        point.setColor(color);
     }
 
     public Color getColor() {
@@ -45,12 +49,31 @@ public class Cluster {
         Y = y;
     }
 
-    public Point getCenter() {
-        return center;
+    public Set<Point> getPointList() {
+        return pointList;
     }
 
-    public void setCenter(Point center) {
-        this.center = center;
+    public void setPointList(Set<Point> pointList) {
+        this.pointList = pointList;
     }
 
+    @Override
+    public boolean equals(Object clusterForCheck){
+        Cluster cluster = (Cluster) clusterForCheck;
+        if( Math.abs(cluster.getX() - X) > 2 || Math.abs(cluster.getY() - Y) > 2 ) return false;
+        return true;
+    }
+
+    public void recalcCenter(){
+        int sumX = 0;
+        int sumY = 0;
+        for(Point point : pointList){
+            sumX += point.getX();
+            sumY += point.getY();
+        }
+        int avgX = sumX / pointList.size();
+        int avgY = sumY / pointList.size();
+        X = avgX;
+        Y = avgY;
+    }
 }
