@@ -13,7 +13,6 @@ public class Cluster {
     private int X;
     private int Y;
     private List<Point> pointList;
-    private int amountOfPoints = 0;
     public Cluster(int X, int Y){
         this.X = X;
         this.Y = Y;
@@ -23,7 +22,6 @@ public class Cluster {
     public void addPoint(Point point){
         pointList.add(point);
         point.setColor(color);
-        amountOfPoints++;
     }
 
     public Color getColor() {
@@ -49,15 +47,6 @@ public class Cluster {
     public void setY(int y) {
         Y = y;
     }
-
-//    public Set<Point> getPointList() {
-//        return pointList;
-//    }
-//
-//    public void setPointList(Set<Point> pointList) {
-//        this.pointList = pointList;
-//    }
-
 
     public List<Point> getPointList() {
         return pointList;

@@ -37,5 +37,9 @@ public class DrawingPanel extends JPanel {
     public void setkMeans(KMeans kMeans) {
         this.kMeans = kMeans;
     }
+
+    public void clear(Graphics g){
+        g.clearRect(0,0,this.getWidth(),this.getHeight());
+    }
 }
 

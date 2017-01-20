@@ -23,8 +23,8 @@ public class KMeans {
                     (point) ->  currentClusterState.add(new Cluster(point.getX(),point.getY()))
             );
         }
-        makeDependecies();
         copyLists();
+        makeDependecies();
         changeCenters();
         makeIters();
     }
@@ -33,7 +33,8 @@ public class KMeans {
         while (isStateChanged() == true) {
             copyLists();
             changeCenters();
-            System.out.println("CIRCLE");
+            makeDependecies();
+            changeCenters();
         }
         isClustersCreated = true;
     }
@@ -43,6 +44,7 @@ public class KMeans {
     }
 
     private boolean isStateChanged() {
+        if(currentClusterState.size() != previousClusterState.size()) return true;
         for (int i = 0; i < currentClusterState.size(); i++) {
             if (!previousClusterState.get(i).equals(currentClusterState.get(i))) return true;
         }
@@ -72,6 +74,7 @@ public class KMeans {
     }
 
     public void makeDependecies() {
+        PointStorage.getInstance().dropFlags();
         for (Point point : PointStorage.getInstance().getPointList()) {
             double min = countDistance(point.getX(), point.getY(), currentClusterState.get(0).getX(), currentClusterState.get(0).getY());
             Cluster targetCluster = currentClusterState.get(0);
@@ -92,7 +95,7 @@ public class KMeans {
 
     private void copyLists() {
         for(Cluster cluster : currentClusterState){
-            previousClusterState.add(new Cluster(cluster.getX(),cluster.getY()));
+            previousClusterState.add(cluster);
         }
     }
 
@@ -123,19 +126,10 @@ public class KMeans {
     }
 
     public Point findPoint(double rnd){
-        Point point =  new Point(0,0);
-//        while(!checkExistCluster(point)){
-//            point = getRandomPoint();
-//        }
+        Point point =  getRandomPoint();
         double sum = 0;
         for (Point onePoint : PointStorage.getInstance().getPointList()){
             if(sum > rnd){
-//                if (!checkExistCluster(onePoint)) {
-//                    point = onePoint;
-//                    break;
-//                } else {
-//                    continue;
-//                }
                 point = onePoint;
                 break;
             }

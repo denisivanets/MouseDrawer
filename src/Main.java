@@ -26,6 +26,15 @@ public class Main {
         amountField.setSize(20,10);
         box.add(clustersLabel);
         box.add(amountField);
+        JButton clearButton = new JButton("Clear");
+        clearButton.addActionListener(
+                (event) -> {
+                    PointStorage.getInstance().getPointList().clear();
+                    pointsPanel.clear(pointsPanel.getGraphics());
+                    pointsPanel.update(pointsPanel.getGraphics());
+                }
+        );
+        box.add(clearButton);
         clusterButton.addActionListener(
                 (event) -> {
                     final String fieldText = amountField.getText();
