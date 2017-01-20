@@ -12,17 +12,18 @@ public class Cluster {
     );
     private int X;
     private int Y;
-    private Set<Point> pointList;
-
+    private List<Point> pointList;
+    private int amountOfPoints = 0;
     public Cluster(int X, int Y){
         this.X = X;
         this.Y = Y;
-        pointList = new HashSet<>();
+        pointList = new ArrayList<>();
     }
 
     public void addPoint(Point point){
         pointList.add(point);
         point.setColor(color);
+        amountOfPoints++;
     }
 
     public Color getColor() {
@@ -49,31 +50,46 @@ public class Cluster {
         Y = y;
     }
 
-    public Set<Point> getPointList() {
+//    public Set<Point> getPointList() {
+//        return pointList;
+//    }
+//
+//    public void setPointList(Set<Point> pointList) {
+//        this.pointList = pointList;
+//    }
+
+
+    public List<Point> getPointList() {
         return pointList;
     }
 
-    public void setPointList(Set<Point> pointList) {
+    public void setPointList(List<Point> pointList) {
         this.pointList = pointList;
     }
 
     @Override
     public boolean equals(Object clusterForCheck){
         Cluster cluster = (Cluster) clusterForCheck;
-        if( Math.abs(cluster.getX() - X) > 2 || Math.abs(cluster.getY() - Y) > 2 ) return false;
+        if( Math.abs(cluster.getX() - X) > 5 || Math.abs(cluster.getY() - Y) > 5 ) return false;
         return true;
     }
 
     public void recalcCenter(){
-        int sumX = 0;
-        int sumY = 0;
+        double sumX = 0;
+        double sumY = 0;
         for(Point point : pointList){
             sumX += point.getX();
             sumY += point.getY();
         }
-        int avgX = sumX / pointList.size();
-        int avgY = sumY / pointList.size();
-        X = avgX;
-        Y = avgY;
+        double avgX = 0;
+        double avgY = 0;
+            avgX = sumX / pointList.size();
+            avgY = sumY / pointList.size();
+            this.X = (int) avgX;
+            this.Y = (int) avgY;
+    }
+
+    public void print(){
+        System.out.println("X: " + X + "Y: " + Y);
     }
 }

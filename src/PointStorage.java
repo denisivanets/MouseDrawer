@@ -27,4 +27,10 @@ public class PointStorage {
     public void setPointList(List<Point> pointList) {
         this.pointList = pointList;
     }
+
+    public void dropFlags(){
+        pointList.forEach(
+                point -> point.setIsAlreadyAdded(false)
+        );
+    }
 }

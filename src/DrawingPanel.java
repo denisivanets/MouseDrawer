@@ -5,7 +5,7 @@ import java.util.List;
 
 public class DrawingPanel extends JPanel {
 
-    KMeans kMeans = new KMeans();
+    private KMeans kMeans = new KMeans();
 
     public DrawingPanel(){
         super();

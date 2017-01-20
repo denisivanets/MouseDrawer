@@ -3,22 +3,13 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.ArrayList;
 
 public class Main {
     private JFrame frame;
     private DrawingPanel pointsPanel = new DrawingPanel();
 
     public static void main(String[] args) {
-        Point point1 = new Point(50,50);
-        Point point2 = new Point(150,150);
-        Point point3 = new Point(250,250);
-        Point point4 = new Point(70,250);
-        Point point5 = new Point(10,300);
-        PointStorage.getInstance().getPointList().add(point1);
-        PointStorage.getInstance().getPointList().add(point2);
-        PointStorage.getInstance().getPointList().add(point3);
-        PointStorage.getInstance().getPointList().add(point4);
-        PointStorage.getInstance().getPointList().add(point5);
         new Main().start();
     }
 
@@ -30,10 +21,24 @@ public class Main {
         Box box = new Box(BoxLayout.Y_AXIS);
         JButton clusterButton = new JButton("Cluster" );
         box.add(clusterButton);
+        JLabel clustersLabel = new JLabel("Amount");
+        JTextField amountField = new JTextField("1",3);
+        amountField.setSize(20,10);
+        box.add(clustersLabel);
+        box.add(amountField);
         clusterButton.addActionListener(
                 (event) -> {
-                    pointsPanel.getkMeans().runAlgorithm(500, 500);
-                    pointsPanel.update(pointsPanel.getGraphics());
+                    final String fieldText = amountField.getText();
+                    final int amountOfClusters = Integer.parseInt(fieldText);
+                    if (PointStorage.getInstance().getPointList().size() == 0 || amountOfClusters <= 0) {
+                    } else {
+                        pointsPanel.setkMeans(new KMeans());
+                        pointsPanel.getkMeans().setK(amountOfClusters);
+                        pointsPanel.getkMeans().runAlgorithm();
+                        pointsPanel.update(pointsPanel.getGraphics());
+                        pointsPanel.setVisible(false);
+                        pointsPanel.setVisible(true);
+                    }
                 }
         );
         MouseListener listener = new MouseAdapter() {

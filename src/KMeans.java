@@ -1,47 +1,49 @@
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class KMeans {
 
-    private int K = 4;
-    private List<Cluster> currentClusterState = new ArrayList<>(K);
-    private List<Cluster> previousClusterState = new ArrayList<>(K);
+    private int K = 1;
+    private List<Cluster> currentClusterState = new ArrayList<>();
+    private List<Cluster> previousClusterState = new ArrayList<>();
     private boolean isClustersCreated = false;
 
-    public void runAlgorithm(int width, int height){
-        if(isClustersCreated == true) return;
-        for (int i = 0; i < K; i++){
-            Cluster cluster = new Cluster((int) (Math.random() * width), (int) (Math.random() * height));
+
+    public void runAlgorithm() {
+        if (isClustersCreated == true) return;
+        PointStorage.getInstance().dropFlags();
+        Point randomPoint = getRandomPoint();
+        Cluster cluster = new Cluster(
+                randomPoint.getX(), randomPoint.getY()
+        );
+        if (K < PointStorage.getInstance().getPointList().size()) {
             currentClusterState.add(cluster);
+            makeClusters();
+        } else {
+            PointStorage.getInstance().getPointList().forEach(
+                    (point) ->  currentClusterState.add(new Cluster(point.getX(),point.getY()))
+            );
         }
         makeDependecies();
         copyLists();
+        changeCenters();
         makeIters();
     }
 
-    private void makeIters(){
+    private void makeIters() {
         while (isStateChanged() == true) {
             copyLists();
             changeCenters();
+            System.out.println("CIRCLE");
         }
         isClustersCreated = true;
-        currentClusterState.forEach(
-                (cluster) -> {
-                    cluster.getPointList().forEach(
-                            (point) -> System.out.println("X: " + point.getX() + "Y: " + point.getY())
-                    );
-                    System.out.println("======================");
-                }
-        );
     }
 
-    private double countDistance(double x1, double y1, double x2, double y2){
-        return Math.sqrt( Math.pow((x2 - x1),2) + Math.pow( (y2 - y1),2) );
+    private double countDistance(double x1, double y1, double x2, double y2) {
+        return Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2));
     }
 
-    private boolean isStateChanged(){
-        for (int i = 0; i < currentClusterState.size(); i++){
+    private boolean isStateChanged() {
+        for (int i = 0; i < currentClusterState.size(); i++) {
             if (!previousClusterState.get(i).equals(currentClusterState.get(i))) return true;
         }
         return false;
@@ -59,35 +61,28 @@ public class KMeans {
         return currentClusterState;
     }
 
-    public void setCurrentClusterState(List<Cluster> currentClusterState) {
-        this.currentClusterState = currentClusterState;
-    }
-
     public List<Cluster> getPreviousClusterState() {
         return previousClusterState;
     }
 
-    public void setPreviousClusterState(List<Cluster> previousClusterState) {
-        this.previousClusterState = previousClusterState;
-    }
-
-    public void changeCenters(){
+    public void changeCenters() {
         currentClusterState.forEach(
                 (cluster) -> cluster.recalcCenter()
         );
     }
 
-    public void makeDependecies(){
-        for (Point point : PointStorage.getInstance().getPointList()){
-            double min = countDistance( point.getX(), point.getY(), currentClusterState.get(0).getX(), currentClusterState.get(0).getY());
+    public void makeDependecies() {
+        for (Point point : PointStorage.getInstance().getPointList()) {
+            double min = countDistance(point.getX(), point.getY(), currentClusterState.get(0).getX(), currentClusterState.get(0).getY());
             Cluster targetCluster = currentClusterState.get(0);
-            for (Cluster cluster : currentClusterState){
-                double distance = countDistance( point.getX(), point.getY(), cluster.getX(), cluster.getY());
-                if ( distance < min ){
+            for (Cluster cluster : currentClusterState) {
+                double distance = countDistance(point.getX(), point.getY(), cluster.getX(), cluster.getY());
+                if (distance < min) {
                     min = distance;
                     targetCluster = cluster;
                 }
             }
+            point.setColor(targetCluster.getColor());
             if (!point.isAlreadyAdded()) {
                 targetCluster.addPoint(point);
                 point.setIsAlreadyAdded(true);
@@ -95,10 +90,79 @@ public class KMeans {
         }
     }
 
-    private void copyLists(){
-        currentClusterState.forEach(
-                (element) -> previousClusterState.add(element)
-        );
+    private void copyLists() {
+        for(Cluster cluster : currentClusterState){
+            previousClusterState.add(new Cluster(cluster.getX(),cluster.getY()));
+        }
+    }
+
+    private void makeClusters() {
+        for (int i = 1; i < K; i++) {
+            double sunSqrDists = 0;
+            double RND = 0;
+            for (Point point : PointStorage.getInstance().getPointList()) {
+                double min = countMinDistance(point);
+                sunSqrDists += (min * min);
+            }
+            RND = sunSqrDists * Math.random();
+            Point pointForNewCluster = findPoint(RND);
+            Cluster cluster = new Cluster(pointForNewCluster.getX(), pointForNewCluster.getY());
+            currentClusterState.add(i,cluster);
+        }
+    }
+
+    public int countMinDistance(Point point) {
+        double min = countDistance(point.getX(), point.getY(), currentClusterState.get(0).getX(), currentClusterState.get(0).getY());
+        for (Cluster cluster : currentClusterState) {
+            double distance = countDistance(point.getX(), point.getY(), cluster.getX(), cluster.getY());
+            if (distance < min) {
+                min = distance;
+            }
+        }
+        return (int) min;
+    }
+
+    public Point findPoint(double rnd){
+        Point point =  new Point(0,0);
+//        while(!checkExistCluster(point)){
+//            point = getRandomPoint();
+//        }
+        double sum = 0;
+        for (Point onePoint : PointStorage.getInstance().getPointList()){
+            if(sum > rnd){
+//                if (!checkExistCluster(onePoint)) {
+//                    point = onePoint;
+//                    break;
+//                } else {
+//                    continue;
+//                }
+                point = onePoint;
+                break;
+            }
+            double min = countMinDistance(onePoint);
+            sum += (min * min);
+        }
+        return point;
+    }
+
+    private boolean checkExistCluster(Point point){
+        for(Cluster cluster : currentClusterState){
+            if(point.getX() == cluster.getX() && point.getY() == cluster.getY()) return true;
+        }
+        return false;
+    }
+
+    private Point getRandomPoint(){
+        Point rndPoint = PointStorage.getInstance().getPointList().get((int) (Math.random() * PointStorage.getInstance().getPointList().size()));
+        return rndPoint;
+    }
+
+    public boolean isClustersCreated() {
+        return isClustersCreated;
+    }
+
+    public void setIsClustersCreated(boolean isClustersCreated) {
+        this.isClustersCreated = isClustersCreated;
     }
 
 }
